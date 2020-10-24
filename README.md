@@ -156,6 +156,52 @@ STRONGHOLD_USER_TEST_FUNC = lambda user: user.is_staff
 STRONGHOLD_USER_TEST_FUNC = lambda user: user.is_authenticated
 ```
 
+## Usage with Django Allauth
+
+If you want to use Django Stronghold with Django Allauth you will need to include a custom configuration to your `settings.py`, to avoid redirect loops and wrong redirections.
+
+```
+# The Allauth setting to avoid redirects
+ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = False
+
+# The Stronghold configuration
+STRONGHOLD_PUBLIC_NAMED_URLS = (
+    "account_login",
+    "account_signup",
+    "account_logout",
+    "account_inactive",
+    "account_set_password",
+    "account_inactive",
+    "account_reset_password",
+    "account_reset_password_done",
+    "account_reset_password_from_key_done",
+    "account_email",
+    "account_email_verification_sent",
+)
+
+# These extra ones are needed because they include dynamic keys
+STRONGHOLD_PUBLIC_URLS = (
+    r"^/accounts/confirm-email/",
+    r"^password/reset/key/",
+)
+```
+
+When using social logins, you will need to add some extra lines to the `STRONGHOLD_PUBLIC_NAMED_URLS`. Replace the provider ID before `_login` and `_callback` with the social provider that you want to use. For each provider, add these two entries. In the example below you see a configuration for a Github OAuth2 login.
+
+```python
+STRONGHOLD_PUBLIC_NAMED_URLS = (
+    ...
+    "provider_login_url",
+    "github_login",
+    "github_callback",
+    "socialaccount_signup",
+    "socialaccount_connections",
+    "socialaccount_login_error",
+    "socialaccount_login_cancelled",
+    
+)
+```
+
 ## Compatiblity
 
 Tested with:
